@@ -14,19 +14,20 @@
 
 bool animate = false;
 
-GLuint load_texture(const std::string &imagepath) {
+GLuint load_texture(const std::string &imagepath)
+{
     std::cerr << "load_texture(\"" << imagepath << "\");" << std::endl;
 
     stbi_set_flip_vertically_on_load(1);
     int width, height, bpp;
-    unsigned char* rgb = stbi_load(imagepath.c_str(), &width, &height, &bpp, 3);
+    unsigned char *rgb = stbi_load(imagepath.c_str(), &width, &height, &bpp, 3);
 
     // Create one OpenGL texture
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,  0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, rgb);
     glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -34,30 +35,36 @@ GLuint load_texture(const std::string &imagepath) {
     return textureID;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode)
+{
     std::cerr << "key_callback(" << window << ", " << key << ", " << scancode << ", " << action << ", " << mode << ");" << std::endl;
-    if (GLFW_RELEASE == action) {
+    if (GLFW_RELEASE == action)
+    {
         return;
     }
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    {
         animate = !animate;
     }
 }
 
-void read_n_compile_shader(const std::string filename, GLuint &hdlr, GLenum shaderType) {
+void read_n_compile_shader(const std::string filename, GLuint &hdlr, GLenum shaderType)
+{
     std::cerr << "Loading shader file " << filename << "... ";
-    std::ifstream is(filename, std::ios::in|std::ios::binary|std::ios::ate);
-    if (!is.is_open()) {
+    std::ifstream is(filename, std::ios::in | std::ios::binary | std::ios::ate);
+    if (!is.is_open())
+    {
         std::cerr << "failed" << std::endl;
         return;
     }
     std::cerr << "ok" << std::endl;
 
     long size = is.tellg();
-    char *buffer = new char[size+1];
+    char *buffer = new char[size + 1];
     is.seekg(0, std::ios::beg);
     is.read(buffer, size);
     is.close();
@@ -65,7 +72,7 @@ void read_n_compile_shader(const std::string filename, GLuint &hdlr, GLenum shad
 
     std::cerr << "Compiling the shader " << filename << "... ";
     hdlr = glCreateShader(shaderType);
-    glShaderSource(hdlr, 1, (const GLchar**)&buffer, NULL);
+    glShaderSource(hdlr, 1, (const GLchar **)&buffer, NULL);
     glCompileShader(hdlr);
     GLint success;
     glGetShaderiv(hdlr, GL_COMPILE_STATUS, &success);
@@ -73,18 +80,21 @@ void read_n_compile_shader(const std::string filename, GLuint &hdlr, GLenum shad
 
     GLint log_length;
     glGetShaderiv(hdlr, GL_INFO_LOG_LENGTH, &log_length);
-    if (log_length>0) {
+    if (log_length > 0)
+    {
         std::vector<char> v(log_length, 0);
         glGetShaderInfoLog(hdlr, log_length, NULL, v.data());
-        if (strlen(v.data())>0) {
+        if (strlen(v.data()) > 0)
+        {
             std::cerr << v.data() << std::endl;
         }
     }
 
-    delete [] buffer;
+    delete[] buffer;
 }
 
-GLuint set_shaders(const std::string vsfile, const std::string fsfile) {
+GLuint set_shaders(const std::string vsfile, const std::string fsfile)
+{
     GLuint vert_hdlr, frag_hdlr;
     read_n_compile_shader(vsfile, vert_hdlr, GL_VERTEX_SHADER);
     read_n_compile_shader(fsfile, frag_hdlr, GL_FRAGMENT_SHADER);
@@ -103,17 +113,20 @@ GLuint set_shaders(const std::string vsfile, const std::string fsfile) {
 
     GLint log_length;
     glGetProgramiv(prog_hdlr, GL_INFO_LOG_LENGTH, &log_length);
-    if (log_length>0) {
+    if (log_length > 0)
+    {
         std::vector<char> v(log_length);
         glGetProgramInfoLog(prog_hdlr, log_length, NULL, v.data());
-        if (strlen(v.data())>0) {
+        if (strlen(v.data()) > 0)
+        {
             std::cerr << v.data() << std::endl;
         }
     }
     return prog_hdlr;
 }
 
-int setup_window(GLFWwindow* &window, const GLuint width, const GLuint height) {
+int setup_window(GLFWwindow *&window, const GLuint width, const GLuint height)
+{
     std::cerr << "Starting GLFW context, OpenGL 3.3" << std::endl;
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -123,14 +136,16 @@ int setup_window(GLFWwindow* &window, const GLuint width, const GLuint height) {
 
     window = glfwCreateWindow(width, height, "OpenGL starter pack", NULL, NULL);
     glfwMakeContextCurrent(window);
-    if (!window) {
+    if (!window)
+    {
         std::cerr << "Failed to create GLFW window" << std::endl;
         return -1;
     }
 
     glfwSetKeyCallback(window, key_callback);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
         std::cerr << "Failed to initialize OpenGL context" << std::endl;
         return -1;
     }
@@ -138,7 +153,8 @@ int setup_window(GLFWwindow* &window, const GLuint width, const GLuint height) {
     return 0;
 }
 
-Matrix rot_z(const float angle) {
+Matrix rot_z(const float angle)
+{
     Matrix R = Matrix::identity();
     R[0][0] = R[2][2] = cos(angle);
     R[2][0] = sin(angle);
@@ -146,34 +162,39 @@ Matrix rot_z(const float angle) {
     return R;
 }
 
-template <size_t DimRows,size_t DimCols,class T> void export_row_major(mat<DimRows,DimCols,T> m, float *arr) {
-    for (size_t i=DimRows; i--; )
-        for (size_t j=DimCols; j--; arr[i+j*DimCols]=m[i][j]);
+template <size_t DimRows, size_t DimCols, class T>
+void export_row_major(mat<DimRows, DimCols, T> m, float *arr)
+{
+    for (size_t i = DimRows; i--;)
+        for (size_t j = DimCols; j--; arr[i + j * DimCols] = m[i][j])
+            ;
 }
 
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     std::cout << "Usage: " << argv[0] << " model.obj tangentnormals.jpg diffuse.jpg specular.jpg" << std::endl;
-    std::string file_obj ("../lib/tinyrenderer/obj/diablo3_pose/diablo3_pose.obj");
-    std::string file_nm  ("../lib/tinyrenderer/obj/diablo3_pose/diablo3_pose_nm_tangent.tga");
+    std::string file_obj("../lib/tinyrenderer/obj/diablo3_pose/diablo3_pose.obj");
+    std::string file_nm("../lib/tinyrenderer/obj/diablo3_pose/diablo3_pose_nm_tangent.tga");
     std::string file_diff("../lib/tinyrenderer/obj/diablo3_pose/diablo3_pose_diffuse.tga");
     std::string file_spec("../lib/tinyrenderer/obj/diablo3_pose/diablo3_pose_spec.tga");
-    if (5==argc) {
-        file_obj  = std::string(argv[1]);
-        file_nm   = std::string(argv[2]);
+    if (5 == argc)
+    {
+        file_obj = std::string(argv[1]);
+        file_nm = std::string(argv[2]);
         file_diff = std::string(argv[3]);
         file_spec = std::string(argv[4]);
     }
     Model model(file_obj.c_str());
 
     const GLuint width = 800, height = 800;
-    GLFWwindow* window;
-    if (setup_window(window, width, height)) {
+    GLFWwindow *window;
+    if (setup_window(window, width, height))
+    {
         glfwTerminate();
         return -1;
     }
 
-    GLuint prog_hdlr = set_shaders("../src/vertex.glsl", "../src/fragment.glsl");
+    GLuint prog_hdlr = set_shaders("../src/vertex.vert", "../src/fragment.frag");
 
     Matrix M = Matrix::identity();
     Matrix V = Matrix::identity();
@@ -182,41 +203,48 @@ int main(int argc, char** argv) {
     // Get handles to our uniforms
     GLuint LightID = glGetUniformLocation(prog_hdlr, "LightPosition_worldspace");
     GLuint MatrixID = glGetUniformLocation(prog_hdlr, "MVP");
-    GLuint ViewMatrixID  = glGetUniformLocation(prog_hdlr, "V");
+    GLuint ViewMatrixID = glGetUniformLocation(prog_hdlr, "V");
     GLuint ModelMatrixID = glGetUniformLocation(prog_hdlr, "M");
-    GLuint Texture0ID    = glGetUniformLocation(prog_hdlr, "tangentnm");
-    GLuint Texture1ID  = glGetUniformLocation(prog_hdlr, "diffuse");
-    GLuint Texture2ID  = glGetUniformLocation(prog_hdlr, "specular");
+    GLuint Texture0ID = glGetUniformLocation(prog_hdlr, "tangentnm");
+    GLuint Texture1ID = glGetUniformLocation(prog_hdlr, "diffuse");
+    GLuint Texture2ID = glGetUniformLocation(prog_hdlr, "specular");
 
-    std::vector<GLfloat>    vertices(3*3*model.nfaces(), 0);
-    std::vector<GLfloat>     normals(3*3*model.nfaces(), 0);
-    std::vector<GLfloat>    tangents(3*3*model.nfaces(), 0);
-    std::vector<GLfloat>  bitangents(3*3*model.nfaces(), 0);
-    std::vector<GLfloat>      uvs(2*3*model.nfaces(), 0);
+    std::vector<GLfloat> vertices(3 * 3 * model.nfaces(), 0);
+    std::vector<GLfloat> normals(3 * 3 * model.nfaces(), 0);
+    std::vector<GLfloat> tangents(3 * 3 * model.nfaces(), 0);
+    std::vector<GLfloat> bitangents(3 * 3 * model.nfaces(), 0);
+    std::vector<GLfloat> uvs(2 * 3 * model.nfaces(), 0);
 
-    for (int i=0; i<model.nfaces(); i++) {
+    for (int i = 0; i < model.nfaces(); i++)
+    {
         Vec3f v0 = model.point(model.vert(i, 0));
         Vec3f v1 = model.point(model.vert(i, 1));
         Vec3f v2 = model.point(model.vert(i, 2));
 
-        Vec3f v01 = proj<3>(M*(embed<4>(v1 - v0)));
-        Vec3f v02 = proj<3>(M*(embed<4>(v2 - v0)));
+        Vec3f v01 = proj<3>(M * (embed<4>(v1 - v0)));
+        Vec3f v02 = proj<3>(M * (embed<4>(v2 - v0)));
         mat<3, 3, float> A;
         A[0] = v01;
         A[1] = v02;
         A[2] = cross(v01, v02).normalize();
 
-        Vec3f tgt   = A.invert() * Vec3f(model.uv(i, 1).x - model.uv(i, 0).x, model.uv(i, 2).x - model.uv(i, 0).x, 0);
+        Vec3f tgt = A.invert() * Vec3f(model.uv(i, 1).x - model.uv(i, 0).x, model.uv(i, 2).x - model.uv(i, 0).x, 0);
         Vec3f bitgt = A.invert() * Vec3f(model.uv(i, 1).y - model.uv(i, 0).y, model.uv(i, 2).y - model.uv(i, 0).y, 0);
         tgt.normalize();
         bitgt.normalize();
 
-        for (int j=0; j<3; j++) {
-            for (int k=0; k<2; k++)      uvs[(i*3+j)*2 + k] = model.uv(i, j)[k];
-            for (int k=0; k<3; k++) vertices[(i*3+j)*3 + k] = model.point(model.vert(i, j))[k];
-            for (int k=0; k<3; k++)  normals[(i*3+j)*3 + k] = model.normal(i, j)[k];
-            for (int k=0; k<3; k++)    tangents[(i*3+j)*3 + k] = tgt[k];
-            for (int k=0; k<3; k++)  bitangents[(i*3+j)*3 + k] = bitgt[k];
+        for (int j = 0; j < 3; j++)
+        {
+            for (int k = 0; k < 2; k++)
+                uvs[(i * 3 + j) * 2 + k] = model.uv(i, j)[k];
+            for (int k = 0; k < 3; k++)
+                vertices[(i * 3 + j) * 3 + k] = model.point(model.vert(i, j))[k];
+            for (int k = 0; k < 3; k++)
+                normals[(i * 3 + j) * 3 + k] = model.normal(i, j)[k];
+            for (int k = 0; k < 3; k++)
+                tangents[(i * 3 + j) * 3 + k] = tgt[k];
+            for (int k = 0; k < 3; k++)
+                bitangents[(i * 3 + j) * 3 + k] = bitgt[k];
         }
     }
 
@@ -227,44 +255,43 @@ int main(int argc, char** argv) {
 
     glEnableVertexAttribArray(0);
     GLuint vertexbuffer = 0;
-    glGenBuffers(1, &vertexbuffer);              // allocate and assign one Vertex Buffer Object to our handle
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer); // bind our VBO as being the active buffer and storing vertex attributes (coordinates)
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*vertices.size(), vertices.data(), GL_STATIC_DRAW); // copy the vertex data to our buffer. The buffer contains sizeof(GLfloat) * 3 * nverts bytes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glGenBuffers(1, &vertexbuffer);                                                                    // allocate and assign one Vertex Buffer Object to our handle
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);                                                       // bind our VBO as being the active buffer and storing vertex attributes (coordinates)
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW); // copy the vertex data to our buffer. The buffer contains sizeof(GLfloat) * 3 * nverts bytes
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
     glEnableVertexAttribArray(1);
     GLuint normalbuffer = 0;
     glGenBuffers(1, &normalbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-    glBufferData(GL_ARRAY_BUFFER, normals.size()*sizeof(GLfloat), normals.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GLfloat), normals.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
     glEnableVertexAttribArray(2);
     GLuint tangentbuffer = 0;
     glGenBuffers(1, &tangentbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, tangentbuffer);
-    glBufferData(GL_ARRAY_BUFFER, tangents.size()*sizeof(GLfloat), tangents.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(GLfloat), tangents.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
     glEnableVertexAttribArray(3);
     GLuint bitangentbuffer = 0;
     glGenBuffers(1, &bitangentbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, bitangentbuffer);
-    glBufferData(GL_ARRAY_BUFFER, bitangents.size()*sizeof(GLfloat), bitangents.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, bitangents.size() * sizeof(GLfloat), bitangents.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
     glEnableVertexAttribArray(4);
     GLuint uvbuffer = 0;
     glGenBuffers(1, &uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER, uvs.size()*sizeof(GLfloat), uvs.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(GLfloat), uvs.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
     // Load the textures
     GLuint tex_normals = load_texture(file_nm);
     GLuint tex_diffuse = load_texture(file_diff);
-    GLuint tex_spec    = load_texture(file_spec);
+    GLuint tex_spec = load_texture(file_spec);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex_normals);
@@ -281,10 +308,12 @@ int main(int argc, char** argv) {
     glUseProgram(prog_hdlr); // specify the shaders to use
 
     auto start = std::chrono::steady_clock::now();
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window))
+    {
         { // 20ms sleep to reach 50 fps, do something useful instead of sleeping
             auto end = std::chrono::steady_clock::now();
-            if (std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() < 20) { 
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() < 20)
+            {
                 std::this_thread::sleep_for(std::chrono::milliseconds(3));
                 continue;
             }
@@ -293,19 +322,20 @@ int main(int argc, char** argv) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // wipe the screen buffers
 
-        { // Send our transformation to the currently bound shader
+        {     // Send our transformation to the currently bound shader
             { // rotate the model around the z axis with each frame
                 Matrix R = rot_z(0.01);
-                if (animate) M = R*M;
+                if (animate)
+                    M = R * M;
             }
 
             float tmp[16] = {0};
             export_row_major(M, tmp);
             glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, tmp);
             export_row_major(V, tmp);
-            glUniformMatrix4fv(ViewMatrixID,  1, GL_FALSE, tmp);
-            export_row_major(P*V*M, tmp);
-            glUniformMatrix4fv(MatrixID,      1, GL_FALSE, tmp);
+            glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, tmp);
+            export_row_major(P * V * M, tmp);
+            glUniformMatrix4fv(MatrixID, 1, GL_FALSE, tmp);
         }
         const float lightpos[3] = {40, 40, 40}; // the light position sent to the vertex shader
         glUniform3fv(LightID, 1, lightpos);
@@ -337,4 +367,3 @@ int main(int argc, char** argv) {
     glfwTerminate();
     return 0;
 }
-
